@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Manager</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    padding: 15px;
+    background: #f4f4f4;
+}
+
+h1 {
+    text-align: center;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+.task {
+    background: white;
+    padding: 10px;
+    margin: 10px 0;
+    border-left: 10px solid gray;
+}
+
+.high { border-color: red; }
+.medium { border-color: orange; }
+.low { border-color: green; }
+
+button {
+    background: black;
+    color: white;
+    border: none;
+}
+
+.delete {
+    background: red;
+    margin-top: 5px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Užduočių App</h1>
+
+<input id="taskInput" placeholder="Užduotis">
+<input id="dateInput" type="date">
+
+<select id="priority">
+    <option value="high">Aukštas</option>
+    <option value="medium" selected>Vidutinis</option>
+    <option value="low">Žemas</option>
+</select>
+
+<button onclick="addTask()">Pridėti</button>
+
+<input id="search" placeholder="Paieška..." oninput="renderTasks()">
+
+<div id="tasks"></div>
+
+<script>
+
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+function save() {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function addTask() {
+    let text = document.getElementById("taskInput").value;
+    let date = document.getElementById("dateInput").value;
+    let priority = document.getElementById("priority").value;
+
+    if (!text) return;
+
+    tasks.push({ text, date, priority });
+
+    save();
+    renderTasks();
+
+    document.getElementById("taskInput").value = "";
+    document.getElementById("dateInput").value = "";
+}
+
+function deleteTask(index) {
+    tasks.splice(index, 1);
+    save();
+    renderTasks();
+}
+
+function renderTasks() {
+    let container = document.getElementById("tasks");
+    let search = document.getElementById("search").value.toLowerCase();
+
+    container.innerHTML = "";
+
+    tasks
+    .filter(t => t.text.toLowerCase().includes(search))
+    .forEach((t, i) => {
+
+        let div = document.createElement("div");
+        div.className = "task " + t.priority;
+
+        div.innerHTML = `
+            <b>${t.text}</b><br>
+            📅 ${t.date || "nėra datos"}<br>
+            <button class="delete" onclick="deleteTask(${i})">Ištrinti</button>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+renderTasks();
+
+</script>
+
+</body>
+</html>
