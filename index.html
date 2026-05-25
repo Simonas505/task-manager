@@ -3,57 +3,119 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Task Manager</title>
+<title>TASKS</title>
 
 <style>
 body {
-    font-family: Arial;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
     margin: 0;
-    padding: 15px;
-    background: #f4f4f4;
+    padding: 18px;
+    background: #f3f4f6;
+    color: #111827;
 }
 
+/* HEADER */
 h1 {
     text-align: center;
+    font-size: 26px;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    color: #111827;
 }
 
+/* INPUTS */
 input, select, button {
     width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    font-size: 16px;
+    padding: 12px;
+    margin: 6px 0;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    outline: none;
+    box-sizing: border-box;
 }
 
-.task {
-    background: white;
-    padding: 10px;
-    margin: 10px 0;
-    border-left: 10px solid gray;
+input, select {
+    background: #ffffff;
+    color: #111827;
 }
 
-.high { border-color: red; }
-.medium { border-color: orange; }
-.low { border-color: green; }
+input:focus, select:focus {
+    border-color: #6b7280;
+}
 
+/* BUTTON */
 button {
-    background: black;
-    color: white;
+    background: #111827;
+    color: #f9fafb;
     border: none;
+    cursor: pointer;
+    transition: 0.2s;
 }
+
+button:hover {
+    background: #374151;
+}
+
+/* TASK CARD */
+.task {
+    background: #ffffff;
+    padding: 14px;
+    margin: 12px 0;
+    border-radius: 12px;
+    border-left: 5px solid #9ca3af;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.high { border-color: #b91c1c; }
+.medium { border-color: #b45309; }
+.low { border-color: #065f46; }
 
 .delete {
-    background: red;
-    margin-top: 5px;
+    background: #b91c1c;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+/* DATE INPUT (CUSTOM FIX) */
+.date-wrap {
+    position: relative;
+}
+
+.date-wrap input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fake-date {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    font-size: 14px;
+    color: #6b7280;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.fake-date.active {
+    color: #111827;
 }
 </style>
 
 </head>
 <body>
 
-<h1>Užduočių App</h1>
+<h1>TASKS</h1>
 
 <input id="taskInput" placeholder="Užduotis">
-<input id="dateInput" type="date">
+
+<div class="date-wrap" onclick="openDate()">
+    <div class="fake-date" id="fakeDate">Pasirinkti datą</div>
+    <input id="dateInput" type="date" onchange="updateDate()">
+</div>
 
 <select id="priority">
     <option value="high">Aukštas</option>
@@ -75,6 +137,25 @@ function save() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+/* OPEN DATE PICKER */
+function openDate() {
+    document.getElementById("dateInput").showPicker();
+}
+
+/* UPDATE DATE TEXT */
+function updateDate() {
+    const dateInput = document.getElementById("dateInput");
+    const fake = document.getElementById("fakeDate");
+
+    if (dateInput.value) {
+        fake.textContent = dateInput.value;
+        fake.classList.add("active");
+    } else {
+        fake.textContent = "Pasirinkti datą";
+        fake.classList.remove("active");
+    }
+}
+
 function addTask() {
     let text = document.getElementById("taskInput").value;
     let date = document.getElementById("dateInput").value;
@@ -89,6 +170,7 @@ function addTask() {
 
     document.getElementById("taskInput").value = "";
     document.getElementById("dateInput").value = "";
+    updateDate();
 }
 
 function deleteTask(index) {
@@ -112,7 +194,9 @@ function renderTasks() {
 
         div.innerHTML = `
             <b>${t.text}</b><br>
-            📅 ${t.date || "nėra datos"}<br>
+            <div style="margin-top:6px; color:#6b7280;">
+                ${t.date || "Be datos"}
+            </div>
             <button class="delete" onclick="deleteTask(${i})">Ištrinti</button>
         `;
 
